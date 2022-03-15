@@ -7,5 +7,5 @@ Gradle Plugin version: 7.1.2,
 
 Kotlin Plugin version: 1.6.10
 
-The project is avalailable view Firebase App Distribution, 
+The project is avalailable via Firebase App Distribution, 
 if you want to add an e-mail, please contact me.
