@@ -12,6 +12,7 @@ plugins {
     kotlin("android")
     kotlin("kapt")
     id("com.android.application")
+    id("com.google.gms.google-services")
     id("kotlin-parcelize")
     id("dagger.hilt.android.plugin")
     id("io.gitlab.arturbosch.detekt").version("1.19.0")
@@ -86,6 +87,8 @@ dependencies {
 
     implementations(RoomLibs.dependencies())
     kapts(RoomLibs.kaptDependencies())
+
+    implementation(platform("com.google.firebase:firebase-bom:29.2.0"))
 }
 
 fun buildProperties(): Properties {

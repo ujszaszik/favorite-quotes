@@ -8,11 +8,13 @@ buildscript {
     val gradlePluginVersion by extra { "7.1.2" }
     val kotlinPluginVersion by extra { "1.6.10" }
     val hiltPluginVersion by extra { "2.39.1" }
+    val googleServicesVersion by extra { "4.3.10" }
 
     dependencies {
         classpath("com.android.tools.build:gradle:$gradlePluginVersion")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinPluginVersion")
         classpath("com.google.dagger:hilt-android-gradle-plugin:$hiltPluginVersion")
+        classpath("com.google.gms:google-services:$googleServicesVersion")
     }
 }
 
