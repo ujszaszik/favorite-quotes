@@ -85,9 +85,6 @@ dependencies {
     implementations(MoshiLibs.dependencies())
     kapts(MoshiLibs.kaptDependencies())
 
-    implementations(RoomLibs.dependencies())
-    kapts(RoomLibs.kaptDependencies())
-
     implementation(platform("com.google.firebase:firebase-bom:29.2.0"))
 }
 
