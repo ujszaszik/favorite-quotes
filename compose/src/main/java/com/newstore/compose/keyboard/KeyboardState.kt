@@ -5,8 +5,6 @@ import android.view.ViewTreeObserver
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalView
 
-//  Copyright © 2021. OTP Mobil Szolgáltató Kft. All rights reserved.
-
 enum class Keyboard {
     Opened, Closed;
 

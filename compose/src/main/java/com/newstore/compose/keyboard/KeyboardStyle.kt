@@ -5,8 +5,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 
-//  Copyright © 2021. OTP Mobil Szolgáltató Kft. All rights reserved.
-
 class KeyboardStyle(
     private val keyboardType: KeyboardType,
     private val imeAction: ImeAction = ImeAction.Default,

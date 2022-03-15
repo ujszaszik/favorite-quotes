@@ -27,8 +27,6 @@ import com.newstore.compose.resources.Dimens
 import com.newstore.compose.resources.Strings
 import com.newstore.extension.empty
 
-//  Copyright © 2021. OTP Mobil Szolgáltató Kft. All rights reserved.
-
 @Composable
 fun QuoteAlertDialog(
     title: String = String.empty,
