@@ -31,4 +31,16 @@ class QuoteRepository @Inject constructor(
         return networkFlow { quoteService.getFilteredTagQuotes(pageNumber, tag) }
     }
 
+    fun upVoteQuote(userToken: String, id: Long): ResourceFlow<QuoteDetailsModel> {
+        return networkFlow { quoteService.upVoteQuote(userToken, id) }
+    }
+
+    fun downVoteQuote(userToken: String, id: Long): ResourceFlow<QuoteDetailsModel> {
+        return networkFlow { quoteService.downVoteQuote(userToken, id) }
+    }
+
+    fun favoriteQuote(userToken: String, id: Long): ResourceFlow<QuoteDetailsModel> {
+        return networkFlow { quoteService.favoriteQuote(userToken, id) }
+    }
+
 }

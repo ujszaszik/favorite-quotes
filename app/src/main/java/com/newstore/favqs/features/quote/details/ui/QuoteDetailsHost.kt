@@ -47,7 +47,8 @@ fun QuoteDetailsHost(quoteId: Long?, viewModel: QuoteDetailsViewModel = hiltView
                 QuoteDetailsScreen(
                     isLoading = isLoading,
                     quoteDetails = action.quoteDetailsModel,
-                    onTagClicked = { tag -> viewModel.onTagClicked(tag) }
+                    onTagClicked = { tag -> viewModel.onTagClicked(tag) },
+                    onVoteClicked = { voteType -> viewModel.voteOnQuote(voteType) }
                 )
             }
             is Action.StartTagSearch -> {

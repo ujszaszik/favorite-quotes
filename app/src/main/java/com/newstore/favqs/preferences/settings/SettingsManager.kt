@@ -23,6 +23,8 @@ class SettingsManager @Inject constructor(preferencesManager: PreferencesManager
 
     fun hasUserToken(): Boolean = userToken.isNotEmpty()
 
+    fun getCurrentUserToken(): String = userToken
+
     fun saveUserToken(token: String) {
         userToken = token
     }

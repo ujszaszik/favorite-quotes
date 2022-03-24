@@ -14,13 +14,15 @@ import com.newstore.compose.layout.LoadingBox
 import com.newstore.compose.layout.TopCenterColumn
 import com.newstore.compose.resources.Dimens
 import com.newstore.compose.separator.VerticalSeparator
+import com.newstore.favqs.features.quote.details.QuoteVoteType
 import com.newstore.favqs.features.quote.details.model.QuoteDetailsModel
 
 @Composable
 fun QuoteDetailsScreen(
     isLoading: Boolean,
     quoteDetails: QuoteDetailsModel,
-    onTagClicked: (String) -> Unit
+    onTagClicked: (String) -> Unit,
+    onVoteClicked: (QuoteVoteType) -> Unit,
 ) {
 
     LoadingBox(
@@ -67,13 +69,22 @@ fun QuoteDetailsScreen(
                     .fillMaxWidth()
                     .padding(vertical = Dimens.paddingDefault, horizontal = Dimens.paddingDouble)
             ) {
-                UpVoteCounter(value = quoteDetails.upVotesCount)
-                DownVoteCounter(value = quoteDetails.downVotesCount)
-                FavoriteCounter(value = quoteDetails.favoritesCount)
+                UpVoteCounter(
+                    value = quoteDetails.upVotesCount,
+                    onClick = { onVoteClicked(QuoteVoteType.UPVOTE) }
+                )
+                DownVoteCounter(
+                    value = quoteDetails.downVotesCount,
+                    onClick = { onVoteClicked(QuoteVoteType.DOWNVOTE) }
+                )
+                FavoriteCounter(
+                    value = quoteDetails.favoritesCount,
+                    onClick = { onVoteClicked(QuoteVoteType.FAVORITE) }
+                )
             }
 
-        }
+        } // TopCenterColumn
 
-    }
+    } // LoadingBox
 
 }
