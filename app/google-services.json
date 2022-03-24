@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "428126778633",
+    "project_id": "favorite-quotes-19408",
+    "storage_bucket": "favorite-quotes-19408.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:428126778633:android:0fc7820fbeab64d1c5cfd8",
+        "android_client_info": {
+          "package_name": "com.newstore.favqs"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "428126778633-d9atreshi2qgbdpihcac8h4m38q6upcm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBDlSY9s9ccA3vKoJWp9abezP8_I2GWmcQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "428126778633-d9atreshi2qgbdpihcac8h4m38q6upcm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
