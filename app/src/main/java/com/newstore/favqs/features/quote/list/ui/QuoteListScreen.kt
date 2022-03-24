@@ -38,7 +38,7 @@ fun QuoteListScreen(
         if (showSearchView) {
             SearchView {
                 keyboardManager.hide()
-                val params = QuoteSearchParams(QuoteSearchType.KEYWORD, it)
+                val params = QuoteSearchParams(QuoteSearchType.Keyword(), it)
                 onSearchRequest(params)
             }
         }

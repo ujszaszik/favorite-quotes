@@ -53,9 +53,9 @@ class QuoteListViewModel @Inject constructor(
 
     private fun getSourceBySearchParams(searchParams: QuoteSearchParams): ResourceFlow<QuoteListModel> {
         return when (searchParams.type) {
-            ALL -> repository.getQuotesList(++currentPageNumber)
-            TAG -> repository.getTagFilteredQuoteList(searchParams.keyword!!, ++currentPageNumber)
-            KEYWORD -> repository.getFilteredQuoteList(searchParams.keyword!!, ++currentPageNumber)
+            is All -> repository.getQuotesList(++currentPageNumber)
+            is Tag -> repository.getTagFilteredQuoteList(searchParams.keyword!!, ++currentPageNumber)
+            is Keyword -> repository.getFilteredQuoteList(searchParams.keyword!!, ++currentPageNumber)
         }
     }
 

@@ -1,7 +1,7 @@
 package com.newstore.favqs.navigation.arguments
 
 import androidx.navigation.NavBackStackEntry
-import com.squareup.moshi.Moshi
+import com.newstore.favqs.data.PolymorphicMoshiBuilder
 
 inline fun <reified T> NavBackStackEntry.retainParam(param: String): T? {
     return try {
@@ -12,9 +12,9 @@ inline fun <reified T> NavBackStackEntry.retainParam(param: String): T? {
 }
 
 inline fun <reified T> T?.toJson(): String {
-    return Moshi.Builder().build().adapter(T::class.java).toJson(this)
+    return PolymorphicMoshiBuilder.build().adapter(T::class.java).toJson(this)
 }
 
 inline fun <reified T> String.convertFromJson(): T? {
-    return Moshi.Builder().build().adapter(T::class.java).fromJson(this)
+    return PolymorphicMoshiBuilder.build().adapter(T::class.java).fromJson(this)
 }

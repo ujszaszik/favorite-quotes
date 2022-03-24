@@ -1,10 +1,11 @@
 package com.newstore.favqs.navigation.host
 
 import com.newstore.extension.empty
+import com.newstore.favqs.data.PolymorphicMoshiBuilder
 import com.squareup.moshi.JsonClass
-import com.squareup.moshi.Moshi
 
-internal val hostAdapter = Moshi.Builder().build().adapter(Host::class.java)
+internal val hostAdapter =
+    PolymorphicMoshiBuilder.build().adapter(Host::class.java)
 
 @JsonClass(generateAdapter = true)
 data class Host(
@@ -38,5 +39,5 @@ fun Host.acceptParam(param: String): Host = apply {
 }
 
 inline fun <reified T> Host.withData(data: T?): String {
-    return route.plus(Moshi.Builder().build().adapter(T::class.java).toJson(data))
+    return route.plus(PolymorphicMoshiBuilder.build().adapter(T::class.java).toJson(data))
 }

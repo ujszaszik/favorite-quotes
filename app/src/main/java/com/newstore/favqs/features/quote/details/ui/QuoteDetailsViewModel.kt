@@ -61,7 +61,7 @@ class QuoteDetailsViewModel @Inject constructor(
     }
 
     internal fun onTagClicked(tag: String) {
-        val searchParams = QuoteSearchParams(QuoteSearchType.TAG, tag)
+        val searchParams = QuoteSearchParams(QuoteSearchType.Tag(), tag)
         _action.postValue(Action.StartTagSearch(searchParams))
     }
 

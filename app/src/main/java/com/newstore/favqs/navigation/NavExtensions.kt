@@ -5,10 +5,10 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.*
 import androidx.navigation.compose.ComposeNavigator
 import androidx.navigation.compose.DialogNavigator
+import com.newstore.favqs.data.PolymorphicMoshiBuilder
 import com.newstore.favqs.navigation.host.Host
 import com.newstore.favqs.navigation.host.compress
 import com.newstore.favqs.navigation.host.extractHost
-import com.squareup.moshi.Moshi
 
 internal fun NavGraphBuilder.composable(
     host: Host,
@@ -64,7 +64,11 @@ internal fun NavController.navigate(
 }
 
 inline fun <reified T> NavController.navigate(host: Host, param: T?) {
-    navigate(host.route.plus(Moshi.Builder().build().adapter(T::class.java).toJson(param)))
+    navigate(
+        host.route.plus(
+            PolymorphicMoshiBuilder.build().adapter(T::class.java).toJson(param)
+        )
+    )
 }
 
 fun NavDestination.asHost(): Host? {
