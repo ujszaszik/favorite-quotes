@@ -9,6 +9,7 @@ import com.newstore.compose.layout.LoadingBox
 import com.newstore.favqs.features.account.login.ui.LoginViewModel.Action.NavigateToList
 import com.newstore.favqs.features.account.login.ui.LoginViewModel.Action.ShowError
 import com.newstore.favqs.features.quote.list.ui.QuoteListHost
+import com.newstore.favqs.features.quote.quoteoftheday.ui.QuoteOfTheDayHost
 import com.newstore.favqs.navigation.graph.LocalNavController
 import com.newstore.favqs.navigation.host.Host
 import com.newstore.favqs.navigation.navigate
@@ -17,7 +18,7 @@ val LoginHost = Host("LoginHost")
 
 fun NavController.navigateToLogin() {
     navigate(LoginHost.route) {
-        popUpTo(LoginHost.route)
+        popUpTo(QuoteOfTheDayHost.route)
     }
 }
 

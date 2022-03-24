@@ -12,6 +12,7 @@ data class Host(
     val title: String = String.empty,
     val type: HostType = HostType.DEFAULT,
     val showSearchBar: Boolean = false,
+    val backPressStrategy: BackPressStrategy = BackPressStrategy.POP_BACKSTACK
 )
 
 fun Host?.actualType(): HostType = this?.type ?: HostType.DEFAULT

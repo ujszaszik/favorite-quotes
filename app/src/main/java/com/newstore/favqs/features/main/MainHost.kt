@@ -8,6 +8,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import com.google.accompanist.insets.ProvideWindowInsets
@@ -29,7 +30,7 @@ import com.newstore.favqs.navigation.host.*
 import com.newstore.favqs.navigation.navigate
 
 @Composable
-fun MainHost() {
+fun MainHost(viewModel: MainViewModel) {
 
     val navController = LocalNavController.current
 
@@ -37,6 +38,17 @@ fun MainHost() {
 
     navController.addOnDestinationChangedListener { _, destination, _ ->
         host = destination.label.toString().extractHost()
+    }
+
+    val onBackPressed = viewModel.onBackPressed.observeAsState().value ?: false
+
+    if (onBackPressed) {
+        when (host?.backPressStrategy) {
+            BackPressStrategy.POP_BACKSTACK -> navController.popBackStack()
+            BackPressStrategy.EXIT_APPLICATION -> viewModel.onExitRequest()
+            else -> Unit
+        }
+        viewModel.resetBackPress()
     }
 
     val isKeyboardOpened = keyboardAsState().value.isOpened()

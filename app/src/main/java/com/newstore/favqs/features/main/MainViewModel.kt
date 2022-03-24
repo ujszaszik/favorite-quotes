@@ -12,9 +12,19 @@ class MainViewModel @Inject constructor() : ViewModel() {
     private val _onBackPressed = MutableLiveData<Boolean>()
     val onBackPressed: LiveData<Boolean> = _onBackPressed
 
+    private val _onExitRequest = MutableLiveData<Boolean>()
+    val onExitRequest: LiveData<Boolean> = _onExitRequest
+
     internal fun onBackPressed() = _onBackPressed.postValue(true)
 
     internal fun resetBackPress() {
         _onBackPressed.value = null
     }
+
+    internal fun onExitRequest() = _onExitRequest.postValue(true)
+
+    internal fun resetExitRequest() {
+        _onExitRequest.value = null
+    }
+
 }

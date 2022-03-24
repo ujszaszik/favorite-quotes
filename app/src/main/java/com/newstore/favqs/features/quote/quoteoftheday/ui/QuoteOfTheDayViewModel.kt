@@ -19,12 +19,15 @@ class QuoteOfTheDayViewModel @Inject constructor(
     private val _action = MutableLiveData<Action>()
     val action: LiveData<Action> = _action
 
+    private val _showLoginScreen = MutableLiveData<Boolean>()
+    val showLoginScreen: LiveData<Boolean> = _showLoginScreen
+
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
     init {
         if (settingsManager.needsToShowQuoteOnStartup()) postQuoteOfTheDay()
-        else _action.postValue(Action.NavigateToLogin)
+        else _showLoginScreen.postValue(true)
     }
 
     private fun postQuoteOfTheDay() {
@@ -44,17 +47,15 @@ class QuoteOfTheDayViewModel @Inject constructor(
         settingsManager.setIfNeedsToShowQuotesOnStartup(newValue)
     }
 
-    internal fun onQuoteDismissed() {
-        if (settingsManager.hasUserToken()) {
-            _action.postValue(Action.NavigateToList)
-        } else _action.postValue(Action.NavigateToLogin)
+    internal fun onQuoteDismissed() = _showLoginScreen.postValue(!settingsManager.hasUserToken())
+
+    internal fun resetNavigation() {
+        _showLoginScreen.value = null
     }
 
     sealed class Action {
         class ShowError(val message: String) : Action()
         class ShowQuote(val quoteModel: QuoteOfTheDayModel) : Action()
-        object NavigateToLogin : Action()
-        object NavigateToList : Action()
     }
 
 }

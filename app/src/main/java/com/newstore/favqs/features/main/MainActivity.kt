@@ -27,17 +27,14 @@ class MainActivity : AppCompatActivity() {
         setContent {
             val navController = rememberNavController()
             val keyboardManager = KeyboardManager(this)
-            val onBackPressed = viewModel.onBackPressed.observeAsState().value ?: false
 
-            if (onBackPressed) {
-                navController.popBackStack()
-                viewModel.resetBackPress()
-            }
+            val exitRequest = viewModel.onExitRequest.observeAsState().value ?: false
+            if (exitRequest) finishAffinity().run { viewModel.resetExitRequest() }
 
             CompositionLocalProvider(
                 LocalNavController provides navController,
                 LocalKeyboardManager provides keyboardManager
-            ) { MainHost() }
+            ) { MainHost(viewModel) }
         }
     }
 
