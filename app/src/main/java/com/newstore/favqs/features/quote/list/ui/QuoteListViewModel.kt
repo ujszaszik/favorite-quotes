@@ -38,17 +38,17 @@ class QuoteListViewModel @Inject constructor(
     internal fun loadMoreItems(searchParams: QuoteSearchParams) {
         val source = getSourceBySearchParams(searchParams)
 
-        ResourceFlowMediator.create<Action, QuoteListModel>()
-            .inViewModel(this)
-            .onSource(source)
-            .toAction(_action)
-            .connectLoadingWith(_isLoading)
-            .emitOnSuccess {
+        ResourceFlowMediator(
+            viewModel = this,
+            source = source,
+            action = _action,
+            loading = _isLoading,
+            emitOnSuccess = {
                 currentElements.addAll(it.items.filterValid())
                 Action.ShowQuotesList(currentElements, it.isLastPage)
-            }
-            .emitOnError { Action.ShowError(it) }
-            .begin()
+            },
+            emitOnError = { Action.ShowError(it) }
+        ).begin()
     }
 
     private fun getSourceBySearchParams(searchParams: QuoteSearchParams): ResourceFlow<QuoteListModel> {

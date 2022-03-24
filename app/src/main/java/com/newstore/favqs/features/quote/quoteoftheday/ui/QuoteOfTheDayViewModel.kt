@@ -33,14 +33,14 @@ class QuoteOfTheDayViewModel @Inject constructor(
     private fun postQuoteOfTheDay() {
         val source = repository.getQuoteOfTheDay()
 
-        ResourceFlowMediator.create<Action, QuoteOfTheDayModel>()
-            .inViewModel(this)
-            .onSource(source)
-            .toAction(_action)
-            .connectLoadingWith(_isLoading)
-            .emitOnSuccess { Action.ShowQuote(it) }
-            .emitOnError { Action.ShowError(it) }
-            .begin()
+        ResourceFlowMediator(
+            viewModel = this,
+            source = source,
+            action = _action,
+            loading = _isLoading,
+            emitOnSuccess = { Action.ShowQuote(it) },
+            emitOnError = { Action.ShowError(it) }
+        ).begin()
     }
 
     internal fun onCheckChange(newValue: Boolean) {

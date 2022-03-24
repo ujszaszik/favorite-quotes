@@ -25,14 +25,14 @@ class QuoteDetailsViewModel @Inject constructor(
     internal fun loadQuoteDetails(id: Long) {
         val source = repository.getQuoteById(id)
 
-        ResourceFlowMediator.create<Action, QuoteDetailsModel>()
-            .inViewModel(this)
-            .onSource(source)
-            .toAction(_action)
-            .connectLoadingWith(_isLoading)
-            .emitOnSuccess { Action.ShowQuoteDetails(it) }
-            .emitOnError { Action.ShowError(it) }
-            .begin()
+        ResourceFlowMediator(
+            viewModel = this,
+            source = source,
+            action = _action,
+            loading = _isLoading,
+            emitOnSuccess = { Action.ShowQuoteDetails(it) },
+            emitOnError = { Action.ShowError(it) }
+        ).begin()
     }
 
     internal fun onTagClicked(tag: String) {

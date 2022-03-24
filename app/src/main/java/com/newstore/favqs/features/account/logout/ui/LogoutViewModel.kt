@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.newstore.favqs.data.ResourceFlowMediator
 import com.newstore.favqs.features.account.AccountRepository
-import com.newstore.favqs.features.account.logout.model.LogoutModel
 import com.newstore.favqs.preferences.settings.SettingsManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -25,18 +24,17 @@ class LogoutViewModel @Inject constructor(
     internal fun onLogoutRequest() {
         val source = repository.logoutCurrentUser()
 
-        ResourceFlowMediator.create<Action, LogoutModel>()
-            .inViewModel(this)
-            .onSource(source)
-            .toAction(_action)
-            .connectLoadingWith(_isLoading)
-            .emitOnSuccess {
+        ResourceFlowMediator(
+            viewModel = this,
+            source = source,
+            action = _action,
+            loading = _isLoading,
+            emitOnSuccess = {
                 settingsManager.clearUserToken()
                 Action.Logout
-            }
-            .emitOnError { Action.LogoutError(it) }
-            .begin()
-
+            },
+            emitOnError = { Action.LogoutError(it) }
+        ).begin()
     }
 
     sealed class Action {

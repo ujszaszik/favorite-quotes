@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel
 import com.newstore.extension.empty
 import com.newstore.favqs.data.ResourceFlowMediator
 import com.newstore.favqs.features.account.AccountRepository
-import com.newstore.favqs.features.account.login.model.LoginModel
 import com.newstore.favqs.features.account.validation.PasswordValidator
 import com.newstore.favqs.features.account.validation.UserNameValidator
 import com.newstore.favqs.preferences.settings.SettingsManager
@@ -38,18 +37,18 @@ class LoginViewModel @Inject constructor(
 
             val source = repository.loginUser(username, password)
 
-            ResourceFlowMediator.create<Action, LoginModel>()
-                .inViewModel(this)
-                .onSource(source)
-                .toAction(_action)
-                .connectLoadingWith(_isLoading)
-                .emitOnSuccess {
+            ResourceFlowMediator(
+                viewModel = this,
+                source = source,
+                action = _action,
+                loading = _isLoading,
+                emitOnSuccess = {
                     settingsManager.saveUserToken(it.token)
                     settingsManager.saveUserName(username)
                     Action.NavigateToList
-                }
-                .emitOnError { Action.ShowError(it) }
-                .begin()
+                },
+                emitOnError = { Action.ShowError(it) }
+            ).begin()
         }
     }
 

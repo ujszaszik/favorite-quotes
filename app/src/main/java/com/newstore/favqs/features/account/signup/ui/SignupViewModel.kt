@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel
 import com.newstore.extension.empty
 import com.newstore.favqs.data.ResourceFlowMediator
 import com.newstore.favqs.features.account.AccountRepository
-import com.newstore.favqs.features.account.signup.model.SignupModel
 import com.newstore.favqs.features.account.validation.EmailValidator
 import com.newstore.favqs.features.account.validation.PasswordValidator
 import com.newstore.favqs.features.account.validation.UserNameValidator
@@ -45,14 +44,14 @@ class SignupViewModel @Inject constructor(
 
             val source = repository.signupUser(username, email, password)
 
-            ResourceFlowMediator.create<Action, SignupModel>()
-                .inViewModel(this)
-                .onSource(source)
-                .toAction(_action)
-                .connectLoadingWith(_isLoading)
-                .emitOnSuccess { Action.NavigateToList }
-                .emitOnError { Action.ShowError(it) }
-                .begin()
+            ResourceFlowMediator(
+                viewModel = this,
+                source = source,
+                action = _action,
+                loading = _isLoading,
+                emitOnSuccess = { Action.NavigateToList },
+                emitOnError = { Action.ShowError(it) }
+            ).begin()
         }
     }
 

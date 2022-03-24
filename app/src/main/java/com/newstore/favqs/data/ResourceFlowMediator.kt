@@ -11,31 +11,14 @@ import kotlinx.coroutines.launch
 
 typealias ResourceFlow<T> = Flow<Resource<T>>
 
-class ResourceFlowMediator<Action : Any, Source> private constructor() {
-    private lateinit var viewModel: ViewModel
-    private lateinit var source: ResourceFlow<Source>
-    private lateinit var action: MutableLiveData<Action>
-    private lateinit var loading: MutableLiveData<Boolean>
-    private lateinit var emitOnSuccess: (Source) -> Action
-    private lateinit var emitOnError: (String) -> Action
-
-    companion object {
-        fun <S : Any, T> create(): ResourceFlowMediator<S, T> = ResourceFlowMediator()
-    }
-
-    fun inViewModel(viewModel: ViewModel) = apply { this.viewModel = viewModel }
-
-    fun onSource(source: ResourceFlow<Source>) = apply { this.source = source }
-
-    fun toAction(action: MutableLiveData<Action>) = apply { this.action = action }
-
-    fun connectLoadingWith(loading: MutableLiveData<Boolean>) =
-        apply { this.loading = loading }
-
-    fun emitOnSuccess(emitOnSuccess: (Source) -> Action) =
-        apply { this.emitOnSuccess = emitOnSuccess }
-
-    fun emitOnError(emitOnError: (String) -> Action) = apply { this.emitOnError = emitOnError }
+class ResourceFlowMediator<Action : Any, Source>(
+    private val viewModel: ViewModel,
+    private val source: ResourceFlow<Source>,
+    private val action: MutableLiveData<Action>,
+    private val loading: MutableLiveData<Boolean>,
+    private val emitOnSuccess: (Source) -> Action,
+    private val emitOnError: (String) -> Action
+) {
 
     fun begin() {
         viewModel.viewModelScope.launch {
