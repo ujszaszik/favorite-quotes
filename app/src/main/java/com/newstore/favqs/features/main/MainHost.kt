@@ -8,7 +8,6 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import com.google.accompanist.insets.ProvideWindowInsets
@@ -21,6 +20,7 @@ import com.newstore.compose.resources.Dimens
 import com.newstore.compose.resources.Fonts
 import com.newstore.compose.resources.Icons
 import com.newstore.favqs.application.QuotesApplication
+import com.newstore.favqs.coroutines.collectAsStateValue
 import com.newstore.favqs.features.account.logout.ui.LogoutHost
 import com.newstore.favqs.features.account.profile.ProfileHost
 import com.newstore.favqs.features.main.util.ActionBarChannel
@@ -40,15 +40,17 @@ fun MainHost(viewModel: MainViewModel) {
         host = destination.label.toString().extractHost()
     }
 
-    val onBackPressed = viewModel.onBackPressed.observeAsState().value ?: false
+    val onBackPressed = viewModel.onBackPressed.collectAsStateValue()
 
-    if (onBackPressed) {
-        when (host?.backPressStrategy) {
-            BackPressStrategy.POP_BACKSTACK -> navController.popBackStack()
-            BackPressStrategy.EXIT_APPLICATION -> viewModel.onExitRequest()
-            else -> Unit
+    LaunchedEffect(onBackPressed) {
+        if (true == onBackPressed) {
+            when (host?.backPressStrategy) {
+                BackPressStrategy.POP_BACKSTACK -> navController.popBackStack()
+                BackPressStrategy.EXIT_APPLICATION -> viewModel.onExitRequest()
+                else -> Unit
+            }
+            viewModel.resetBackPress()
         }
-        viewModel.resetBackPress()
     }
 
     val isKeyboardOpened = keyboardAsState().value.isOpened()

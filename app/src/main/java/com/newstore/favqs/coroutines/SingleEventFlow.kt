@@ -10,4 +10,6 @@ class SingleEventFlow<T> {
     suspend fun emit(value: T?) {
         eventChannel.send(value)
     }
+
+    suspend fun clear() = eventChannel.send(null)
 }

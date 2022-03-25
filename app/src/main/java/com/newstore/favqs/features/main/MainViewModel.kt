@@ -1,30 +1,26 @@
 package com.newstore.favqs.features.main
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.newstore.favqs.coroutines.*
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor() : ViewModel() {
 
-    private val _onBackPressed = MutableLiveData<Boolean>()
-    val onBackPressed: LiveData<Boolean> = _onBackPressed
+    private val _onBackPressed = mutableStateFlow<Boolean>()
+    val onBackPressed: StateFlow<Boolean?> = _onBackPressed
 
-    private val _onExitRequest = MutableLiveData<Boolean>()
-    val onExitRequest: LiveData<Boolean> = _onExitRequest
+    private val _onExitRequest = SingleEventFlow<Boolean>()
+    val onExitRequest: Flow<Boolean?> = _onExitRequest.eventFlow
 
-    internal fun onBackPressed() = _onBackPressed.postValue(true)
+    internal fun onBackPressed() = emitValue(_onBackPressed, true)
 
-    internal fun resetBackPress() {
-        _onBackPressed.value = null
-    }
+    internal fun resetBackPress() = _onBackPressed.clear()
 
-    internal fun onExitRequest() = _onExitRequest.postValue(true)
+    internal fun onExitRequest() = emitEvent(_onExitRequest, true)
 
-    internal fun resetExitRequest() {
-        _onExitRequest.value = null
-    }
-
+    internal fun resetExitRequest() = launch { _onExitRequest.clear() }
 }

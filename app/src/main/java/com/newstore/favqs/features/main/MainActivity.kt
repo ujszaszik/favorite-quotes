@@ -6,9 +6,10 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
+import com.newstore.favqs.coroutines.collectAsStateValue
 import com.newstore.favqs.features.main.util.KeyboardManager
 import com.newstore.favqs.features.main.util.LocalKeyboardManager
 import com.newstore.favqs.navigation.graph.LocalNavController
@@ -28,8 +29,10 @@ class MainActivity : AppCompatActivity() {
             val navController = rememberNavController()
             val keyboardManager = KeyboardManager(this)
 
-            val exitRequest = viewModel.onExitRequest.observeAsState().value ?: false
-            if (exitRequest) finishAffinity().run { viewModel.resetExitRequest() }
+            val exitRequest = viewModel.onExitRequest.collectAsStateValue()
+            LaunchedEffect(exitRequest) {
+                if (true == exitRequest) finishAffinity().run { viewModel.resetExitRequest() }
+            }
 
             CompositionLocalProvider(
                 LocalNavController provides navController,
