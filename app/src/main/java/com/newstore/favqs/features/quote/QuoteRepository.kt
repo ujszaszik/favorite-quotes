@@ -1,6 +1,6 @@
 package com.newstore.favqs.features.quote
 
-import com.newstore.favqs.data.ResourceFlow
+import com.newstore.favqs.coroutines.ResourceFlow
 import com.newstore.favqs.features.quote.details.model.QuoteDetailsModel
 import com.newstore.favqs.features.quote.list.model.QuoteListModel
 import com.newstore.favqs.features.quote.quoteoftheday.model.QuoteOfTheDayModel

@@ -1,6 +1,6 @@
 package com.newstore.favqs.features.account
 
-import com.newstore.favqs.data.ResourceFlow
+import com.newstore.favqs.coroutines.ResourceFlow
 import com.newstore.favqs.features.account.login.model.LoginModel
 import com.newstore.favqs.features.account.login.network.LoginRequest
 import com.newstore.favqs.features.account.login.network.LoginUserItem

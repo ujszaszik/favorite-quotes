@@ -5,5 +5,6 @@ import com.newstore.network.mapper.DataMappedFrom
 
 @DataMappedFrom(LoginResponse::class)
 data class LoginModel(
+    val username: String,
     val token: String
 )

@@ -31,3 +31,5 @@ fun <T> Flow<T>.collectAsStateValue(): T? {
 fun <T> MutableStateFlow<T?>.clear() {
     this.value = null
 }
+
+fun areAllValid(vararg inputFlows: InputFlow) = inputFlows.all { it.isValid() }

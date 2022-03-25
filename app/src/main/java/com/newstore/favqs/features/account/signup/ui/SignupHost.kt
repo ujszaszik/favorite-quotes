@@ -18,10 +18,10 @@ fun SignupHost(viewModel: SignupViewModel = hiltViewModel()) {
 
     val navController = LocalNavController.current
 
-    val usernameError = viewModel.usernameError.collectAsStateValue()
-    val emailError = viewModel.emailError.collectAsStateValue()
-    val passwordError = viewModel.passwordError.collectAsStateValue()
-    val passwordAgainError = viewModel.passwordAgainError.collectAsStateValue()
+    val usernameError = viewModel.usernameInput.collectErrorState()
+    val emailError = viewModel.emailInput.collectErrorState()
+    val passwordError = viewModel.passwordInput.collectErrorState()
+    val passwordAgainError = viewModel.passwordAgainInput.collectErrorState()
     val signUpError = viewModel.signUpError.collectAsStateValue()
 
     val isSignupSuccessful = viewModel.isSignUpSuccessful.collectAsStateValue()

@@ -1,10 +1,8 @@
 package com.newstore.favqs.features.account.login.ui
 
 import androidx.lifecycle.ViewModel
-import com.newstore.extension.empty
 import com.newstore.favqs.coroutines.*
 import com.newstore.favqs.features.account.AccountRepository
-import com.newstore.favqs.features.account.login.model.LoginModel
 import com.newstore.favqs.features.account.validation.PasswordValidator
 import com.newstore.favqs.features.account.validation.UserNameValidator
 import com.newstore.favqs.preferences.settings.SettingsManager
@@ -19,13 +17,8 @@ class LoginViewModel @Inject constructor(
     private val settingsManager: SettingsManager
 ) : ViewModel() {
 
-    private var username = String.empty
-    private val _usernameError = mutableStateFlow<String>()
-    val usernameError: StateFlow<String?> = _usernameError
-
-    private var password = String.empty
-    private val _passwordError = mutableStateFlow<String>()
-    val passwordError: StateFlow<String?> = _passwordError
+    val usernameInput = InputFlow { UserNameValidator.isValid(it) }
+    val passwordInput = InputFlow { PasswordValidator.isValid(it) }
 
     private val _loginError = mutableStateFlow<String>()
     val loginError: StateFlow<String?> = _loginError
@@ -37,15 +30,18 @@ class LoginViewModel @Inject constructor(
     val isLoading: StateFlow<Boolean?> = _isLoading
 
     internal fun startLogin() {
-        if (isValidUsername() && isValidPassword()) {
+        if (areAllValid(usernameInput, passwordInput)) {
 
-            ResourceFlowMediator<LoginModel>(
-                source = repository.loginUser(username, password),
+            ResourceFlowMediator(
+                source = repository.loginUser(
+                    username = usernameInput.actualValue(),
+                    password = passwordInput.actualValue()
+                ),
                 viewModel = this,
                 loadingFlow = _isLoading,
                 onSuccess = {
                     settingsManager.saveUserToken(it.token)
-                    settingsManager.saveUserName(username)
+                    settingsManager.saveUserName(it.username)
                     emitEvent(_isLoginSuccessful, true)
                 },
                 onError = { emitValue(_loginError, it) }
@@ -53,31 +49,9 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    internal fun onUsernameChanged(newValue: String) {
-        if (newValue != username) {
-            username = newValue
-            _usernameError.value = null
-        }
-    }
+    internal fun onUsernameChanged(newValue: String) = usernameInput.onValueChanged(newValue)
 
-    private fun isValidUsername(): Boolean {
-        val isValidUsername = UserNameValidator.isValid(username)
-        if (!isValidUsername) emitValue(_usernameError, UserNameValidator.ERROR_MESSAGE)
-        return isValidUsername
-    }
-
-    internal fun onPasswordChanged(newValue: String) {
-        if (newValue != password) {
-            password = newValue
-            _passwordError.value = null
-        }
-    }
-
-    private fun isValidPassword(): Boolean {
-        val isValidPassword = PasswordValidator.isValid(password)
-        if (!isValidPassword) emitValue(_passwordError, PasswordValidator.ERROR_MESSAGE)
-        return isValidPassword
-    }
+    internal fun onPasswordChanged(newValue: String) = passwordInput.onValueChanged(newValue)
 
     internal fun clearLoginError() {
         _loginError.value = null

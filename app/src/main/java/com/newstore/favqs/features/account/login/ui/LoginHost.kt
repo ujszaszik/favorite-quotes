@@ -7,6 +7,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.newstore.compose.dialog.ErrorDialog
 import com.newstore.compose.layout.LoadingBox
+import com.newstore.favqs.coroutines.collectAsStateValue
 import com.newstore.favqs.features.quote.list.ui.QuoteListHost
 import com.newstore.favqs.features.quote.quoteoftheday.ui.QuoteOfTheDayHost
 import com.newstore.favqs.navigation.graph.LocalNavController
@@ -29,14 +30,14 @@ fun LoginHost(viewModel: LoginViewModel = hiltViewModel()) {
     val isLoading = viewModel.isLoading.collectAsState().value ?: false
     val isLoginSuccessful = viewModel.isLoginSuccessful.collectAsState(null).value
 
-    val usernameError = viewModel.usernameError.collectAsState().value
-    val passwordError = viewModel.passwordError.collectAsState().value
-    val loginError = viewModel.loginError.collectAsState().value
+    val usernameError = viewModel.usernameInput.collectErrorState()
+    val passwordError = viewModel.passwordInput.collectErrorState()
+    val loginError = viewModel.loginError.collectAsStateValue()
 
-    loginError?.let {
+    loginError?.let { errorMessage ->
         ErrorDialog(
             title = LoginTexts.ERROR_DIALOG_TITLE,
-            message = it,
+            message = errorMessage,
             onClosed = { viewModel.clearLoginError() }
         )
     }
