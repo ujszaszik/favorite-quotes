@@ -63,7 +63,7 @@ fun QuoteListHost(
                     navController.navigate(QuoteListHost.withData(params))
                 },
                 isRefreshing = isRefreshing && searchParams.isDefault,
-                onRefresh = { if (searchParams.isDefault) navController.navigate(QuoteListHost) },
+                onRefresh = { navController.navigate(QuoteListHost.withData(searchParams)) },
                 onLoadMore = { viewModel.loadMoreItems(searchParams) },
                 onFilterReset = { navController.navigate(QuoteListHost) }
             )
