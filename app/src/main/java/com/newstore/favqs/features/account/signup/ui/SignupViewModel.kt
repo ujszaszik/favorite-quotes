@@ -3,8 +3,8 @@ package com.newstore.favqs.features.account.signup.ui
 import androidx.lifecycle.ViewModel
 import com.newstore.favqs.coroutines.*
 import com.newstore.favqs.features.account.AccountRepository
-import com.newstore.favqs.features.account.signup.model.SignupModel
 import com.newstore.favqs.features.account.validation.EmailValidator
+import com.newstore.favqs.features.account.validation.PasswordMatchValidator
 import com.newstore.favqs.features.account.validation.PasswordValidator
 import com.newstore.favqs.features.account.validation.UserNameValidator
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,10 +15,10 @@ import javax.inject.Inject
 @HiltViewModel
 class SignupViewModel @Inject constructor(private val repository: AccountRepository) : ViewModel() {
 
-    val usernameInput = InputFlow { UserNameValidator.isValid(it) }
-    val emailInput = InputFlow { EmailValidator.isValid(it) }
-    val passwordInput = InputFlow { PasswordValidator.isValid(it) }
-    val passwordAgainInput = InputFlow { it == passwordInput.actualValue() }
+    val usernameInput = InputFlow(UserNameValidator)
+    val emailInput = InputFlow(EmailValidator)
+    val passwordInput = InputFlow(PasswordValidator)
+    val passwordAgainInput = InputFlow(PasswordMatchValidator(passwordInput))
 
     private val _signUpError = mutableStateFlow<String>()
     val signUpError: StateFlow<String?> = _signUpError
@@ -32,7 +32,7 @@ class SignupViewModel @Inject constructor(private val repository: AccountReposit
     internal fun startSignup() {
         if (areAllFieldsValid()) {
 
-            ResourceFlowMediator<SignupModel>(
+            ResourceFlowMediator(
                 source = repository.signupUser(
                     username = usernameInput.actualValue(),
                     email = emailInput.actualValue(),

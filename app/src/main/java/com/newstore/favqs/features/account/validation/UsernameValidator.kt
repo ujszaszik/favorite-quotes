@@ -16,9 +16,9 @@ object UserNameValidator : TextValidator {
     private val allowedLengthRange = TextLengthRange.of(ALLOWED_MIN_CHARS, ALLOWED_MAX_CHARS)
     private val lengthValidator = TextLengthValidator(allowedLengthRange)
 
-    internal const val ERROR_MESSAGE =
-        "Can only contain letters, numbers, or underscore.\n" +
-                "Length must be between 1 and 20 characters."
+    override val errorMessage: String
+        get() = "Can only contain letters, numbers, or underscore.\n" +
+                "Length must be between $ALLOWED_MIN_CHARS and $ALLOWED_MAX_CHARS characters."
 
     override fun isValid(value: String?): Boolean {
         return value?.let {

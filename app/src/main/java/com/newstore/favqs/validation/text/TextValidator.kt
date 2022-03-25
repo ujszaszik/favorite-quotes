@@ -1,7 +1,10 @@
 package com.newstore.favqs.validation.text
 
-import com.newstore.favqs.annotation.MarkerInterface
+import com.newstore.extension.empty
 import com.newstore.favqs.validation.Validator
 
-@MarkerInterface
-interface TextValidator : Validator<String?>
+interface TextValidator : Validator<String?> {
+
+    val errorMessage: String
+        get() = String.empty
+}

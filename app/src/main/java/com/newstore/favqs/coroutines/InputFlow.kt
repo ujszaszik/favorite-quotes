@@ -2,13 +2,13 @@ package com.newstore.favqs.coroutines
 
 import androidx.compose.runtime.Composable
 import com.newstore.extension.empty
-import com.newstore.favqs.features.account.validation.UserNameValidator
+import com.newstore.favqs.validation.text.TextValidator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
-class InputFlow(private val validator: (String?) -> Boolean) : CoroutineScope {
+class InputFlow(private val validator: TextValidator) : CoroutineScope {
 
     override val coroutineContext: CoroutineContext = Job()
 
@@ -23,8 +23,8 @@ class InputFlow(private val validator: (String?) -> Boolean) : CoroutineScope {
     }
 
     fun isValid(): Boolean {
-        val isValidUsername = validator(currentValue)
-        if (!isValidUsername) launch { inputError.emit(UserNameValidator.ERROR_MESSAGE) }
+        val isValidUsername = validator.isValid(currentValue)
+        if (!isValidUsername) launch { inputError.emit(validator.errorMessage) }
         return isValidUsername
     }
 

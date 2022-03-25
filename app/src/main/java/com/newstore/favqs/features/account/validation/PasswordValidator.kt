@@ -11,8 +11,8 @@ object PasswordValidator : TextValidator {
     private val allowedLengthRange = TextLengthRange.of(ALLOWED_MIN_CHARS, ALLOWED_MAX_CHARS)
     private val lengthValidator = TextLengthValidator(allowedLengthRange)
 
-    internal const val ERROR_MESSAGE = "Length must be between 5 and 120 characters"
-    internal const val UNMATCHED_ERROR_MESSAGE = "The passwords do not match"
+    override val errorMessage: String
+        get() = "Length must be between $ALLOWED_MIN_CHARS and $ALLOWED_MAX_CHARS characters"
 
     override fun isValid(value: String?): Boolean {
         return value?.let {

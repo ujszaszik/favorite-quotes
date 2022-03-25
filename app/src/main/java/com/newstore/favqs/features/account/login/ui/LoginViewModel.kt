@@ -17,8 +17,8 @@ class LoginViewModel @Inject constructor(
     private val settingsManager: SettingsManager
 ) : ViewModel() {
 
-    val usernameInput = InputFlow { UserNameValidator.isValid(it) }
-    val passwordInput = InputFlow { PasswordValidator.isValid(it) }
+    val usernameInput = InputFlow(UserNameValidator)
+    val passwordInput = InputFlow(PasswordValidator)
 
     private val _loginError = mutableStateFlow<String>()
     val loginError: StateFlow<String?> = _loginError
