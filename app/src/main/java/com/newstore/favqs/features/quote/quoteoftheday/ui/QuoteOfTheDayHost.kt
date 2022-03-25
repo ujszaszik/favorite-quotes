@@ -1,12 +1,10 @@
 package com.newstore.favqs.features.quote.quoteoftheday.ui
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.newstore.compose.dialog.QuoteAlertDialog
 import com.newstore.compose.progress.ProgressBar
+import com.newstore.favqs.coroutines.collectAsStateValue
 import com.newstore.favqs.features.account.login.ui.navigateToLogin
 import com.newstore.favqs.features.quote.list.ui.QuoteListHost
 import com.newstore.favqs.features.quote.quoteoftheday.model.QuoteOfTheDayModel
@@ -29,13 +27,15 @@ fun QuoteOfTheDayHost(viewModel: QuoteOfTheDayViewModel = hiltViewModel()) {
 
     var quoteModel = remember { mutableStateOf<QuoteOfTheDayModel?>(null) }.value
 
-    viewModel.showLoginScreen.observeAsState().value?.let { value ->
-        if (value) navController.navigateToLogin()
-        else navController.navigate(QuoteListHost)
-        viewModel.resetNavigation()
+    val showLogin = viewModel.showLoginScreen.collectAsStateValue()
+    LaunchedEffect(showLogin) {
+        showLogin?.let {
+            if (it) navController.navigateToLogin()
+            else navController.navigate(QuoteListHost)
+        }
     }
 
-    when (val action = viewModel.action.observeAsState().value) {
+    when (val action = viewModel.action.collectAsState().value) {
         is ShowQuote -> quoteModel = action.quoteModel
         is ShowError -> {
             QuoteAlertDialog(

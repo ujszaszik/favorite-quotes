@@ -1,15 +1,16 @@
 package com.newstore.favqs.features.account.login.ui
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.newstore.extension.empty
-import com.newstore.favqs.data.ResourceFlowMediator
+import com.newstore.favqs.coroutines.*
 import com.newstore.favqs.features.account.AccountRepository
+import com.newstore.favqs.features.account.login.model.LoginModel
 import com.newstore.favqs.features.account.validation.PasswordValidator
 import com.newstore.favqs.features.account.validation.UserNameValidator
 import com.newstore.favqs.preferences.settings.SettingsManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,35 +20,35 @@ class LoginViewModel @Inject constructor(
 ) : ViewModel() {
 
     private var username = String.empty
-    private val _usernameError = MutableLiveData<String?>()
-    val usernameError: LiveData<String?> = _usernameError
+    private val _usernameError = mutableStateFlow<String>()
+    val usernameError: StateFlow<String?> = _usernameError
 
     private var password = String.empty
-    private val _passwordError = MutableLiveData<String?>()
-    val passwordError: LiveData<String?> = _passwordError
+    private val _passwordError = mutableStateFlow<String>()
+    val passwordError: StateFlow<String?> = _passwordError
 
-    private val _action = MutableLiveData<Action>()
-    val action: LiveData<Action> = _action
+    private val _loginError = mutableStateFlow<String>()
+    val loginError: StateFlow<String?> = _loginError
 
-    private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> = _isLoading
+    private val _isLoginSuccessful = SingleEventFlow<Boolean>()
+    val isLoginSuccessful: Flow<Boolean?> = _isLoginSuccessful.eventFlow
+
+    private val _isLoading = mutableStateFlow<Boolean>()
+    val isLoading: StateFlow<Boolean?> = _isLoading
 
     internal fun startLogin() {
         if (isValidUsername() && isValidPassword()) {
 
-            val source = repository.loginUser(username, password)
-
-            ResourceFlowMediator(
+            ResourceFlowMediator<LoginModel>(
+                source = repository.loginUser(username, password),
                 viewModel = this,
-                source = source,
-                action = _action,
-                loading = _isLoading,
-                emitOnSuccess = {
+                loadingFlow = _isLoading,
+                onSuccess = {
                     settingsManager.saveUserToken(it.token)
                     settingsManager.saveUserName(username)
-                    Action.NavigateToList
+                    emitEvent(_isLoginSuccessful, true)
                 },
-                emitOnError = { Action.ShowError(it) }
+                onError = { emitValue(_loginError, it) }
             ).begin()
         }
     }
@@ -61,7 +62,7 @@ class LoginViewModel @Inject constructor(
 
     private fun isValidUsername(): Boolean {
         val isValidUsername = UserNameValidator.isValid(username)
-        if (!isValidUsername) _usernameError.postValue(UserNameValidator.ERROR_MESSAGE)
+        if (!isValidUsername) emitValue(_usernameError, UserNameValidator.ERROR_MESSAGE)
         return isValidUsername
     }
 
@@ -74,17 +75,12 @@ class LoginViewModel @Inject constructor(
 
     private fun isValidPassword(): Boolean {
         val isValidPassword = PasswordValidator.isValid(password)
-        if (!isValidPassword) _passwordError.postValue(PasswordValidator.ERROR_MESSAGE)
+        if (!isValidPassword) emitValue(_passwordError, PasswordValidator.ERROR_MESSAGE)
         return isValidPassword
     }
 
-    internal fun resetAction() {
-        _action.value = null
-    }
-
-    sealed class Action {
-        object NavigateToList : Action()
-        class ShowError(val message: String) : Action()
+    internal fun clearLoginError() {
+        _loginError.value = null
     }
 
 }

@@ -1,10 +1,10 @@
 package com.newstore.favqs.features.quote.list.ui
 
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.newstore.compose.dialog.QuoteAlertDialog
 import com.newstore.compose.progress.ProgressBar
+import com.newstore.favqs.coroutines.collectAsStateValue
 import com.newstore.favqs.features.main.util.ActionBarChannel
 import com.newstore.favqs.features.main.util.ActionBarEvent
 import com.newstore.favqs.features.quote.QuoteSearchParams
@@ -33,12 +33,12 @@ fun QuoteListHost(
 
     val navController = LocalNavController.current
 
-    val isLoading = viewModel.isLoading.observeAsState().value ?: false
-    val isRefreshing = viewModel.isRefreshing.observeAsState().value ?: false
+    val isLoading = viewModel.isLoading.collectAsStateValue() ?: false
+    val isRefreshing = viewModel.isRefreshing.collectAsStateValue() ?: false
 
     var showSearchView by remember { mutableStateOf(false) }
 
-    val actionBarEvent = ActionBarChannel.receive().collectAsState(null).value
+    val actionBarEvent = ActionBarChannel.receive().collectAsStateValue()
 
     showSearchView = actionBarEvent == ActionBarEvent.SearchRequested
 
@@ -47,7 +47,7 @@ fun QuoteListHost(
         viewModel.isInitialized = true
     }
 
-    when (val action = viewModel.action.observeAsState().value) {
+    when (val action = viewModel.action.collectAsStateValue()) {
         is Action.ShowQuotesList -> {
             QuoteListScreen(
                 isLoading = isLoading,

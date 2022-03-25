@@ -1,9 +1,9 @@
 package com.newstore.favqs.features.quote.details.ui
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.newstore.favqs.data.ResourceFlowMediator
+import com.newstore.favqs.coroutines.ResourceFlowMediator
+import com.newstore.favqs.coroutines.emitValue
+import com.newstore.favqs.coroutines.mutableStateFlow
 import com.newstore.favqs.features.quote.QuoteRepository
 import com.newstore.favqs.features.quote.QuoteSearchParams
 import com.newstore.favqs.features.quote.QuoteSearchType
@@ -11,6 +11,7 @@ import com.newstore.favqs.features.quote.details.QuoteVoteType
 import com.newstore.favqs.features.quote.details.model.QuoteDetailsModel
 import com.newstore.favqs.preferences.settings.SettingsManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,25 +20,23 @@ class QuoteDetailsViewModel @Inject constructor(
     private val settingsManager: SettingsManager
 ) : ViewModel() {
 
-    private val _action = MutableLiveData<Action>()
-    val action: LiveData<Action> = _action
+    private val _action = mutableStateFlow<Action>()
+    val action: StateFlow<Action?> = _action
 
-    private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> = _isLoading
+    private val _isLoading = mutableStateFlow<Boolean>()
+    val isLoading: StateFlow<Boolean?> = _isLoading
 
     private var currentDetailsId: Long = 0
 
     internal fun loadQuoteDetails(id: Long) {
         currentDetailsId = id
-        val source = repository.getQuoteById(id)
 
-        ResourceFlowMediator(
+        ResourceFlowMediator<QuoteDetailsModel>(
+            source = repository.getQuoteById(id),
             viewModel = this,
-            source = source,
-            action = _action,
-            loading = _isLoading,
-            emitOnSuccess = { Action.ShowQuoteDetails(it) },
-            emitOnError = { Action.ShowError(it) }
+            loadingFlow = _isLoading,
+            onSuccess = { emitValue(_action, Action.ShowQuoteDetails(it)) },
+            onError = { emitValue(_action, Action.ShowError(it)) }
         ).begin()
     }
 
@@ -50,19 +49,18 @@ class QuoteDetailsViewModel @Inject constructor(
             QuoteVoteType.FAVORITE -> repository.favoriteQuote(currentUserToken, currentDetailsId)
         }
 
-        ResourceFlowMediator(
-            viewModel = this,
+        ResourceFlowMediator<QuoteDetailsModel>(
             source = source,
-            action = _action,
-            loading = _isLoading,
-            emitOnSuccess = { Action.ShowQuoteDetails(it) },
-            emitOnError = { Action.ShowError(it) }
+            viewModel = this,
+            loadingFlow = _isLoading,
+            onSuccess = { emitValue(_action, Action.ShowQuoteDetails(it)) },
+            onError = { emitValue(_action, Action.ShowError(it)) }
         ).begin()
     }
 
     internal fun onTagClicked(tag: String) {
         val searchParams = QuoteSearchParams(QuoteSearchType.Tag(), tag)
-        _action.postValue(Action.StartTagSearch(searchParams))
+        emitValue(_action, Action.StartTagSearch(searchParams))
     }
 
     sealed class Action {
@@ -70,6 +68,5 @@ class QuoteDetailsViewModel @Inject constructor(
         class ShowError(val message: String) : Action()
         class StartTagSearch(val params: QuoteSearchParams) : Action()
     }
-
 
 }

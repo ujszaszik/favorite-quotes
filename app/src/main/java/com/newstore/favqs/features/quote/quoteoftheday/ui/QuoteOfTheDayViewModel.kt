@@ -1,13 +1,13 @@
 package com.newstore.favqs.features.quote.quoteoftheday.ui
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.newstore.favqs.data.ResourceFlowMediator
+import com.newstore.favqs.coroutines.*
 import com.newstore.favqs.features.quote.QuoteRepository
 import com.newstore.favqs.features.quote.quoteoftheday.model.QuoteOfTheDayModel
 import com.newstore.favqs.preferences.settings.SettingsManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -16,30 +16,27 @@ class QuoteOfTheDayViewModel @Inject constructor(
     private val settingsManager: SettingsManager
 ) : ViewModel() {
 
-    private val _action = MutableLiveData<Action>()
-    val action: LiveData<Action> = _action
+    private val _action = mutableStateFlow<Action?>()
+    val action: StateFlow<Action?> = _action
 
-    private val _showLoginScreen = MutableLiveData<Boolean>()
-    val showLoginScreen: LiveData<Boolean> = _showLoginScreen
+    private val _showLoginScreen = SingleEventFlow<Boolean>()
+    val showLoginScreen: Flow<Boolean?> = _showLoginScreen.eventFlow
 
-    private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> = _isLoading
+    private val _isLoading = mutableStateFlow<Boolean>()
+    val isLoading: StateFlow<Boolean?> = _isLoading
 
     init {
         if (settingsManager.needsToShowQuoteOnStartup()) postQuoteOfTheDay()
-        else _showLoginScreen.postValue(true)
+        else launch { _showLoginScreen.emit(true) }
     }
 
     private fun postQuoteOfTheDay() {
-        val source = repository.getQuoteOfTheDay()
-
-        ResourceFlowMediator(
+        ResourceFlowMediator<QuoteOfTheDayModel>(
+            source = repository.getQuoteOfTheDay(),
             viewModel = this,
-            source = source,
-            action = _action,
-            loading = _isLoading,
-            emitOnSuccess = { Action.ShowQuote(it) },
-            emitOnError = { Action.ShowError(it) }
+            loadingFlow = _isLoading,
+            onSuccess = { emitValue(_action, Action.ShowQuote(it)) },
+            onError = { emitValue(_action, Action.ShowError(it)) }
         ).begin()
     }
 
@@ -47,10 +44,8 @@ class QuoteOfTheDayViewModel @Inject constructor(
         settingsManager.setIfNeedsToShowQuotesOnStartup(newValue)
     }
 
-    internal fun onQuoteDismissed() = _showLoginScreen.postValue(!settingsManager.hasUserToken())
-
-    internal fun resetNavigation() {
-        _showLoginScreen.value = null
+    internal fun onQuoteDismissed() {
+        launch { _showLoginScreen.emit(!settingsManager.hasUserToken()) }
     }
 
     sealed class Action {

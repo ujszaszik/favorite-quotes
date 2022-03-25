@@ -1,13 +1,12 @@
 package com.newstore.favqs.features.account.login.ui
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.newstore.compose.dialog.ErrorDialog
 import com.newstore.compose.layout.LoadingBox
-import com.newstore.favqs.features.account.login.ui.LoginViewModel.Action.NavigateToList
-import com.newstore.favqs.features.account.login.ui.LoginViewModel.Action.ShowError
 import com.newstore.favqs.features.quote.list.ui.QuoteListHost
 import com.newstore.favqs.features.quote.quoteoftheday.ui.QuoteOfTheDayHost
 import com.newstore.favqs.navigation.graph.LocalNavController
@@ -27,22 +26,23 @@ fun LoginHost(viewModel: LoginViewModel = hiltViewModel()) {
 
     val navController = LocalNavController.current
 
-    val usernameError = viewModel.usernameError.observeAsState().value
-    val passwordError = viewModel.passwordError.observeAsState().value
+    val isLoading = viewModel.isLoading.collectAsState().value ?: false
+    val isLoginSuccessful = viewModel.isLoginSuccessful.collectAsState(null).value
 
-    val action = viewModel.action.observeAsState().value
-    val isLoading = viewModel.isLoading.observeAsState().value ?: false
+    val usernameError = viewModel.usernameError.collectAsState().value
+    val passwordError = viewModel.passwordError.collectAsState().value
+    val loginError = viewModel.loginError.collectAsState().value
 
-    when (action) {
-        is NavigateToList -> navController.navigate(QuoteListHost)
-        is ShowError -> {
-            ErrorDialog(
-                title = LoginTexts.ERROR_DIALOG_TITLE,
-                message = action.message,
-                onClosed = { viewModel.resetAction() }
-            )
-        }
-        else -> Unit
+    loginError?.let {
+        ErrorDialog(
+            title = LoginTexts.ERROR_DIALOG_TITLE,
+            message = it,
+            onClosed = { viewModel.clearLoginError() }
+        )
+    }
+
+    LaunchedEffect(isLoginSuccessful) {
+        if (true == isLoginSuccessful) navController.navigate(QuoteListHost)
     }
 
     LoadingBox(isLoading = isLoading) {

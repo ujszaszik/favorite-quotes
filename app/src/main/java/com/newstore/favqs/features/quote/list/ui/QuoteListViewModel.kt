@@ -1,12 +1,11 @@
 package com.newstore.favqs.features.quote.list.ui
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.newstore.extension.isZero
-import com.newstore.favqs.data.ResourceFlow
-import com.newstore.favqs.data.ResourceFlowMediator
+import com.newstore.favqs.coroutines.ResourceFlow
+import com.newstore.favqs.coroutines.ResourceFlowMediator
+import com.newstore.favqs.coroutines.emitValue
+import com.newstore.favqs.coroutines.mutableStateFlow
 import com.newstore.favqs.features.quote.QuoteRepository
 import com.newstore.favqs.features.quote.QuoteSearchParams
 import com.newstore.favqs.features.quote.QuoteSearchType.*
@@ -14,6 +13,8 @@ import com.newstore.favqs.features.quote.filterValid
 import com.newstore.favqs.features.quote.list.model.QuoteListModel
 import com.newstore.favqs.features.quote.list.model.QuoteModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.transform
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,29 +26,26 @@ class QuoteListViewModel @Inject constructor(
     private var currentElements = mutableListOf<QuoteModel>()
     internal var isInitialized = false
 
-    private val _action = MutableLiveData<Action>()
-    val action: LiveData<Action> = _action
+    private val _action = mutableStateFlow<Action>()
+    val action: StateFlow<Action?> = _action
 
-    private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> = _isLoading
+    private val _isLoading = mutableStateFlow<Boolean>()
+    val isLoading: StateFlow<Boolean?> = _isLoading
 
-    val isRefreshing = Transformations.map(_isLoading) { isLoading ->
-        isLoading && currentPageNumber.isZero()
+    val isRefreshing = _isLoading.transform<Boolean?, Boolean> { isLoading ->
+        true == isLoading && currentPageNumber.isZero()
     }
 
     internal fun loadMoreItems(searchParams: QuoteSearchParams) {
-        val source = getSourceBySearchParams(searchParams)
-
         ResourceFlowMediator(
+            source = getSourceBySearchParams(searchParams),
             viewModel = this,
-            source = source,
-            action = _action,
-            loading = _isLoading,
-            emitOnSuccess = {
+            loadingFlow = _isLoading,
+            onSuccess = {
                 currentElements.addAll(it.items.filterValid())
-                Action.ShowQuotesList(currentElements, it.isLastPage)
+                emitValue(_action, Action.ShowQuotesList(currentElements, it.isLastPage))
             },
-            emitOnError = { Action.ShowError(it) }
+            onError = { emitValue(_action, Action.ShowError(it)) }
         ).begin()
     }
 
@@ -62,7 +60,7 @@ class QuoteListViewModel @Inject constructor(
     internal fun resetPaging() {
         currentPageNumber = 0
         currentElements = mutableListOf()
-        _action.postValue(Action.ShowQuotesList(currentElements, true))
+        emitValue(_action, Action.ShowQuotesList(currentElements, true))
     }
 
     sealed class Action {

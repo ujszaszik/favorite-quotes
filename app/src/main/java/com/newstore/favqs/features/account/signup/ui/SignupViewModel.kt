@@ -1,15 +1,16 @@
 package com.newstore.favqs.features.account.signup.ui
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.newstore.extension.empty
-import com.newstore.favqs.data.ResourceFlowMediator
+import com.newstore.favqs.coroutines.*
 import com.newstore.favqs.features.account.AccountRepository
+import com.newstore.favqs.features.account.signup.model.SignupModel
 import com.newstore.favqs.features.account.validation.EmailValidator
 import com.newstore.favqs.features.account.validation.PasswordValidator
 import com.newstore.favqs.features.account.validation.UserNameValidator
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -18,39 +19,39 @@ class SignupViewModel @Inject constructor(
 ) : ViewModel() {
 
     private var username = String.empty
-    private val _usernameError = MutableLiveData<String?>()
-    val usernameError: LiveData<String?> = _usernameError
+    private val _usernameError = mutableStateFlow<String>()
+    val usernameError: StateFlow<String?> = _usernameError
 
     private var email = String.empty
-    private val _emailError = MutableLiveData<String?>()
-    val emailError: LiveData<String?> = _emailError
+    private val _emailError = mutableStateFlow<String>()
+    val emailError: StateFlow<String?> = _emailError
 
     private var password = String.empty
-    private val _passwordError = MutableLiveData<String?>()
-    val passwordError: LiveData<String?> = _passwordError
+    private val _passwordError = mutableStateFlow<String>()
+    val passwordError: StateFlow<String?> = _passwordError
 
     private var passwordAgain = String.empty
-    private val _passwordAgainError = MutableLiveData<String?>()
-    val passwordAgainError: LiveData<String?> = _passwordAgainError
+    private val _passwordAgainError = mutableStateFlow<String>()
+    val passwordAgainError: StateFlow<String?> = _passwordAgainError
 
-    private val _action = MutableLiveData<Action>()
-    val action: LiveData<Action> = _action
+    private val _signUpError = mutableStateFlow<String>()
+    val signUpError: StateFlow<String?> = _signUpError
 
-    private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> = _isLoading
+    private val _isSignUpSuccessful = SingleEventFlow<Boolean>()
+    val isSignUpSuccessful: Flow<Boolean?> = _isSignUpSuccessful.eventFlow
+
+    private val _isLoading = mutableStateFlow<Boolean>()
+    val isLoading: StateFlow<Boolean?> = _isLoading
 
     internal fun startSignup() {
         if (areAllFieldsValid()) {
 
-            val source = repository.signupUser(username, email, password)
-
-            ResourceFlowMediator(
+            ResourceFlowMediator<SignupModel>(
+                source = repository.signupUser(username, email, password),
                 viewModel = this,
-                source = source,
-                action = _action,
-                loading = _isLoading,
-                emitOnSuccess = { Action.NavigateToList },
-                emitOnError = { Action.ShowError(it) }
+                loadingFlow = _isLoading,
+                onSuccess = { emitEvent(_isSignUpSuccessful, true) },
+                onError = { emitValue(_signUpError, it) }
             ).begin()
         }
     }
@@ -68,7 +69,7 @@ class SignupViewModel @Inject constructor(
 
     private fun isValidUsername(): Boolean {
         val isValidUsername = UserNameValidator.isValid(username)
-        if (!isValidUsername) _usernameError.postValue(UserNameValidator.ERROR_MESSAGE)
+        if (!isValidUsername) emitValue(_usernameError, UserNameValidator.ERROR_MESSAGE)
         return isValidUsername
     }
 
@@ -81,7 +82,7 @@ class SignupViewModel @Inject constructor(
 
     private fun isValidEmail(): Boolean {
         val isValidEmail = EmailValidator.isValid(email)
-        if (!isValidEmail) _emailError.postValue(EmailValidator.ERROR_MESSAGE)
+        if (!isValidEmail) emitValue(_emailError, EmailValidator.ERROR_MESSAGE)
         return isValidEmail
     }
 
@@ -94,7 +95,7 @@ class SignupViewModel @Inject constructor(
 
     private fun isValidPassword(): Boolean {
         val isValidPassword = PasswordValidator.isValid(password)
-        if (!isValidPassword) _passwordError.postValue(PasswordValidator.ERROR_MESSAGE)
+        if (!isValidPassword) emitValue(_passwordError, PasswordValidator.ERROR_MESSAGE)
         return isValidPassword
     }
 
@@ -107,16 +108,11 @@ class SignupViewModel @Inject constructor(
 
     private fun arePasswordsMatch(): Boolean {
         val arePasswordsMatch = password == passwordAgain
-        if (!arePasswordsMatch) _passwordAgainError.postValue(PasswordValidator.UNMATCHED_ERROR_MESSAGE)
+        if (!arePasswordsMatch) {
+            emitValue(_passwordAgainError, PasswordValidator.UNMATCHED_ERROR_MESSAGE)
+        }
         return arePasswordsMatch
     }
 
-    internal fun resetAction() {
-        _action.value = null
-    }
-
-    sealed class Action {
-        object NavigateToList : Action()
-        class ShowError(val message: String) : Action()
-    }
+    internal fun clearSignupError() = _signUpError.clear()
 }

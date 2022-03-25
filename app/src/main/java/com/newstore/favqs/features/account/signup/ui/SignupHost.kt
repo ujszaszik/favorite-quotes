@@ -1,11 +1,11 @@
 package com.newstore.favqs.features.account.signup.ui
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.newstore.compose.dialog.ErrorDialog
 import com.newstore.compose.layout.LoadingBox
-import com.newstore.favqs.features.account.signup.ui.SignupViewModel.Action
+import com.newstore.favqs.coroutines.collectAsStateValue
 import com.newstore.favqs.features.quote.list.ui.QuoteListHost
 import com.newstore.favqs.navigation.graph.LocalNavController
 import com.newstore.favqs.navigation.host.Host
@@ -18,26 +18,25 @@ fun SignupHost(viewModel: SignupViewModel = hiltViewModel()) {
 
     val navController = LocalNavController.current
 
-    val usernameError = viewModel.usernameError.observeAsState().value
-    val emailError = viewModel.emailError.observeAsState().value
-    val passwordError = viewModel.passwordError.observeAsState().value
-    val passwordAgainError = viewModel.passwordAgainError.observeAsState().value
+    val usernameError = viewModel.usernameError.collectAsStateValue()
+    val emailError = viewModel.emailError.collectAsStateValue()
+    val passwordError = viewModel.passwordError.collectAsStateValue()
+    val passwordAgainError = viewModel.passwordAgainError.collectAsStateValue()
+    val signUpError = viewModel.signUpError.collectAsStateValue()
 
-    val action = viewModel.action.observeAsState().value
-    val isLoading = viewModel.isLoading.observeAsState().value ?: false
+    val isSignupSuccessful = viewModel.isSignUpSuccessful.collectAsStateValue()
+    val isLoading = viewModel.isLoading.collectAsStateValue() ?: false
 
-    when (action) {
-        is Action.NavigateToList -> {
-            navController.navigate(QuoteListHost)
-        }
-        is Action.ShowError -> {
-            ErrorDialog(
-                title = SignUpTexts.ERROR_DIALOG_TITLE,
-                message = action.message,
-                onClosed = { viewModel.resetAction() }
-            )
-        }
-        else -> Unit
+    LaunchedEffect(isSignupSuccessful) {
+        if (true == isSignupSuccessful) navController.navigate(QuoteListHost)
+    }
+
+    signUpError?.let {
+        ErrorDialog(
+            title = SignUpTexts.ERROR_DIALOG_TITLE,
+            message = it,
+            onClosed = { viewModel.clearSignupError() }
+        )
     }
 
     LoadingBox(isLoading = isLoading) {
