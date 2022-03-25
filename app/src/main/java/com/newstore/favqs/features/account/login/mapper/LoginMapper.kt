@@ -7,9 +7,6 @@ import com.newstore.network.mapper.BaseMapper
 class LoginMapper : BaseMapper<LoginResponse, LoginModel> {
 
     override fun map(remote: LoginResponse): LoginModel {
-        return LoginModel(
-            username = remote.email,
-            token = remote.userToken
-        )
+        return LoginModel(remote.userToken)
     }
 }

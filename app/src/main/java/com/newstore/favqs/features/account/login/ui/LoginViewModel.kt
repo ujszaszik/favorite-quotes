@@ -41,7 +41,7 @@ class LoginViewModel @Inject constructor(
                 loadingFlow = _isLoading,
                 onSuccess = {
                     settingsManager.saveUserToken(it.token)
-                    settingsManager.saveUserName(it.username)
+                    settingsManager.saveUserName(usernameInput.actualValue())
                     emitEvent(_isLoginSuccessful, true)
                 },
                 onError = { emitValue(_loginError, it) }
@@ -53,8 +53,6 @@ class LoginViewModel @Inject constructor(
 
     internal fun onPasswordChanged(newValue: String) = passwordInput.onValueChanged(newValue)
 
-    internal fun clearLoginError() {
-        _loginError.value = null
-    }
+    internal fun clearLoginError() = _loginError.clear()
 
 }
